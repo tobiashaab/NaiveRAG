@@ -1,0 +1,12 @@
+.env
+**/__pycache__/
+*.egg-info/
+.vscode
+
+doc_store/*
+!doc_store/sample.txt
+
+vector_store/text_chunks/*
+vector_store/vector_db/*
+!vector_store/vector_db/sample.txt
+!vector_store/text_chunks/sample.txt

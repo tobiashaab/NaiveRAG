@@ -1,0 +1,11 @@
+api_key: ${API_KEY}
+overlap_token_size: 50
+max_token_size: 1000
+llm_model_name: "gemini-2.0-flash"
+embedding_model_name: "text-embedding-004"
+embedding_dim: 768
+storage_file: "chunks_vdb.json"
+dir_doc_store: "./doc_store"
+dir_text_chunks: "./vector_store/text_chunks/"
+dir_vector_db: "./vector_store/vector_db/"
+tokenizer: "cl100k_base"  # not public for gemini; using GPT-4o tokenizer as alternative

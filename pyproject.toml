@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "naiverag"
+version = "0.1.0"
+description = "A simple NaiveRAG pipeline"
+authors = [{ name="Tobias Haab"}]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "google-genai==1.26.0",
+    "nano-vectordb==0.0.4.3",
+    "tiktoken==0.9.0",
+    "python-dotenv==1.1.1",
+    "pyyaml==6.0.2",
+    "PyMuPDF==1.26.3",
+    "numpy==2.3.1"
+]
+
+[tool.setuptools.packages.find]
+where = ["./"]
