@@ -1,5 +1,6 @@
 import os
 import pymupdf
+import tiktoken
 
 
 def _get_pdf_paths(dir_docs: str = "./doc_store") -> list:
@@ -78,3 +79,31 @@ def get_documents(dir_docs: str = "./doc_store") -> list:
             )
 
     return documents
+
+
+def encode_string_by_tiktoken(content: str, tokenizer: str = "cl100k_base") -> list:
+    """Encodes a string using Tiktoken.
+
+    Args:
+        content (str): The string to encode.
+        tokenizer (str, optional): The tokenizer to use. Defaults to "cl100k_base".
+
+    Returns:
+        list: List of Token-IDs.
+    """
+    enc = tiktoken.get_encoding(tokenizer)
+    return enc.encode(content)
+
+
+def decode_tokens_by_tiktoken(tokens: list, tokenizer: str = "cl100k_base") -> list:
+    """Decodes Token-IDs with Tiktoken.
+
+    Args:
+        tokens (list): The Token-IDs to decode.
+        model_name (str, optional): The model to use. Defaults to "cl100k_base".
+
+    Returns:
+        list: The decoded content.
+    """
+    enc = tiktoken.get_encoding(tokenizer)
+    return enc.decode(tokens)

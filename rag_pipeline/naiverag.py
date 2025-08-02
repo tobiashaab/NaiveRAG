@@ -1,49 +1,19 @@
 from rag_pipeline.api.gemini import LLM, Embedding
 from rag_pipeline.db.nano_vdb import DB
-from rag_pipeline.chunking.token_size import chunking_by_token_size
+from rag_pipeline.chunking.token_size import ChunkingByTokenSize
 import numpy as np
 import os
 import json
+from .base import AbstractRAG
 
 
-class NaiveRAG:
-    def __init__(
-        self,
-        api_key: str,
-        llm_model_name: str,
-        embedding_model_name: str,
-        embedding_dim: int,
-        vdb_storage_file: str,
-        text_chunks_db_path: str,
-    ) -> None:
-
-        self.llm = LLM(api_key=api_key, llm_model_name=llm_model_name)
-        self.embed = Embedding(
-            api_key=api_key, embedding_model_name=embedding_model_name
-        )
-
-        vdb_storage_file = os.path.join(vdb_storage_file, "vdb.json")
-
-        self.vdb = DB(embedding_dim=embedding_dim, storage_file=vdb_storage_file)
-
-        self.text_chunks_db_path = text_chunks_db_path
-
-        self.text_db_storage_file = os.path.join(text_chunks_db_path, "text_db.json")
-
-        self.text_chunks_db = {}
+class NaiveRAG(AbstractRAG):
+    name = "naiverag"
 
     def chunk(self, documents: list) -> list:
-        """Chunks the given documents into text chunks TBD: Add chunk length.
-
-        Args:
-            documens (list): The documents to chunk.
-
-        Returns:
-            list: The chunks.
-        """
         split_documents = []
         for document in documents:
-            chunks = chunking_by_token_size(document["page_content"])
+            chunks = self.chunking.chunk(document["page_content"])
             for chunk in chunks:
                 split_documents.append(
                     {"page_content": chunk["content"], "metadata": document["metadata"]}
@@ -61,7 +31,7 @@ class NaiveRAG:
 
         contents = [chunk["page_content"] for chunk in chunks]
 
-        embeddings_list = self.embed.embed(contents)
+        embeddings_list = self.embedding.embed(contents)
 
         for i, d in enumerate(list_data):
             d["__vector__"] = np.array(embeddings_list[i], dtype=np.float32)
@@ -88,14 +58,6 @@ class NaiveRAG:
             json.dump(self.text_chunks_db, file, ensure_ascii=False, indent=4)
 
     def generate_db(self, chunks: list) -> None:
-        """Generates the vector and text DB.
-
-        Args:
-            chunks (list): The chunks for the DB.
-
-        Raises:
-            ValueError: No chunks given.
-        """
         if not chunks:
             raise ValueError("No chunks available to generate the vector database.")
 
@@ -104,7 +66,6 @@ class NaiveRAG:
         self._generate_textdb(chunks)
 
     def load_db(self) -> None:
-        """Loads the vector and text DB"""
         self.vdb.load()
 
         with open(self.text_db_storage_file, "r", encoding="utf-8") as file:
@@ -142,17 +103,9 @@ class NaiveRAG:
         return template
 
     def query(self, query: str) -> str:
-        """Queries the DB with a given User Query, returning the LLM generated response.
-
-        Args:
-            query (str): The User Query.
-
-        Returns:
-            str: The generated answer.
-        """
         prompt_template = self._create_prompt_template()
 
-        embed_query = self.embed.embed(query)[0]  # returns list!
+        embed_query = self.embedding.embed(query)[0]  # returns list!
 
         embed_query = np.array(embed_query, dtype=np.float32)
 

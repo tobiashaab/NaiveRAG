@@ -13,14 +13,7 @@ def main():
     config = load_config(config_path)
 
     # TBD: _file are folders instead of files..
-    naiverag = NaiveRAG(
-        api_key=config["api_key"],
-        llm_model_name=config["llm_model_name"],
-        embedding_model_name=config["embedding_model_name"],
-        embedding_dim=config["embedding_dim"],
-        vdb_storage_file=config["dir_vector_db"],
-        text_chunks_db_path=config["dir_text_chunks"],
-    )
+    naiverag = NaiveRAG(config)
 
     if is_update_required(
         dir_text_chunks=config["dir_text_chunks"],
